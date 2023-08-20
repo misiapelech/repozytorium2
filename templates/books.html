@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block title %} Booksapp! {% endblock %}
+
+{% block page %}
+
+    {% if user.is_authenticated %}
+        {{ user.username }} Witaj w Booksapp!<br>
+    <a href="{% url 'logout'  %}">logout</a>
+        {% else %}
+    <a href="{% url 'login'  %}">login</a>
+    {% endif %}
+
+    <hr>
+
+    <a href="{% url 'nowa_książka'  %}">Nowa książka</a>
+
+{% if books|length == 0 %}
+<h2> Brak książek</h2>
+{% else %}
+<h2>Lista książek booksapp: {{ books|length }}</h2>
+
+{% for book in books %}
+<h3> {{  book }} </h3>
+    <img src="/media/{{ book.okładka }}" alt="Okładka książki" style="max-width: 120px;">
+    <p>{{book.opis}}</p>
+    <a href="{% url 'edytuj_książkę' book.id  %}">Edytuj</a>
+    <a href="{% url 'usuń_książkę' book.id  %}">Usuń</a>
+
+
+
+
+{% endfor %}
+{% endif %}
+{% endblock %}
+

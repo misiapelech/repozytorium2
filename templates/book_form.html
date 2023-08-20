@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %} Dodaj książkę  {% endblock %}
+
+{% block page %}
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form }}
+        {{ form_genre }}
+
+        {% if form_ocena %}
+            {{ form_ocena }}
+
+        {% endif %}
+
+        {% if form_review %}
+            {{ form_review }}
+
+        {% endif %}
+
+        {% if nowa %}
+            <button type="submit" name="action" value="dodaj">Dodaj książkę</button>
+        {% else %}
+            <button type="submit" name="action" value="edytuj">Edytuj książkę</button>
+        {% endif %}
+
+
+    </form>
+
+    {% for ocena in oceny %}
+        <h4> Gwiazdki: {{ ocena.gwiazdki }}</h4>
+    {% endfor %}
+
+
+    {% for review in review %}
+        <h4> Treść recenzji: {{ review.treść_recenzji }}</h4>
+    {% endfor %}
+
+    <p> Inne książki tego autora {{ book.autorzy.first }}: </p>
+    <ul>
+        {% for ksiazka in book.autorzy.first.books_set.all %}
+            <li> {{ ksiazka.tytuł }}</li>
+        {% endfor %}
+    </ul>
+
+    <a href="{% url 'wszystkie_ksiazki' %}">Cofnij</a>
+
+{% endblock %}
