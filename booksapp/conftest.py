@@ -4,7 +4,7 @@ import pytest
 
 @pytest.fixture
 def authenticated_client():
-    """Fixture dostarczająca zalogowanego klienta testowego."""
+    """Fixture providing a logged-in test client."""
     User.objects.create_user(username='testuser', password='testpassword')
     client = Client()
     client.login(username='testuser', password='testpassword')

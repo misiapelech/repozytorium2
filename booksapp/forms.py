@@ -1,28 +1,28 @@
 from django.forms import ModelForm
-from .models import Books, Genre, Ocena, Review
+from .models import Books, Genre, Rating, Review
 
-"""Formularz modelu Books."""
+"""This is the Books model form."""
 class BooksForm(ModelForm):
     class Meta:
         model = Books
-        fields = ['tytuł','autorzy', 'rok',  'opis', 'okładka']
+        fields = ['title','authors', 'year',  'description', 'cover']
 
-"""Formularz modelu Genre."""
+"""This is the Genre Model Form."""
 class GenreForm(ModelForm):
     class Meta:
         model = Genre
         fields = ['genre']
 
-"""Formularz modelu Ocena."""
-class OcenaForm(ModelForm):
+"""This is the Rating Model Form."""
+class RatingForm(ModelForm):
     class Meta:
-        model = Ocena
-        fields = ['gwiazdki']
-        required = {'gwiazdki': False}
+        model = Rating
+        fields = ['stars']
+        required = {'stars': False}
 
-"""Formularz modelu Review."""
+"""This is the Review Model Form."""
 class ReviewForm(ModelForm):
     class Meta:
         model = Review
-        fields = ['treść_recenzji']
-        required = {'treść_recenzji': False}
+        fields = ['text_review']
+        required = {'text_review': False}

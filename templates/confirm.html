@@ -3,7 +3,7 @@
 {% block title %} Usuń film  {% endblock %}
 
 {% block page %}
-    <h1>Czy na pewno chcesz usunąć książkę "{{ book.tytuł }}" ?</h1>
+    <h1>Czy na pewno chcesz usunąć książkę "{{ book.title }}" ?</h1>
 <form method="post">
     {% csrf_token %}
     <button type="submit">Tak, usuń ksiązkę</button>

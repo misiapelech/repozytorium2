@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'books.wsgi.application'
 DATABASES = {
     'default': {
         'HOST': '127.0.0.1',
-        'NAME': 'booksapp',
+        'NAME': 'booksapp2',
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'USER': 'postgres',
         'PASSWORD': 'coderslab',
@@ -121,13 +121,13 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/4.2/howto/static-files/
 
 STATIC_URL = 'static/'
-STATICFILES_DIRS = ['moje_static']
+STATICFILES_DIRS = ['my_static']
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'moje_media'
+MEDIA_ROOT = 'my_media'
 
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'wszystkie_ksiazki'
+LOGIN_REDIRECT_URL = 'add_books'
 LOGOUT_REDIRECT_URL = 'login'
 
 

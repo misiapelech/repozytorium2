@@ -6,7 +6,7 @@ from django.urls import reverse
 from django.test import Client
 
 
-"""Fixture dostarczający klienta testowego."""
+"""Fixture providing test client."""
 @pytest.fixture
 def user_client():
     client = Client()
@@ -15,110 +15,112 @@ def user_client():
 
 
 @pytest.mark.django_db
-def test_wszystkie_ksiazki_view(user_client):
-    """1 test, Ta funkcja testuje widok 'wszystkie_ksiazki', sprawdzając kod odpowiedzi i zawartość kontekstu."""
-    response = user_client.get(reverse('wszystkie_ksiazki'))
+def test_add_books_view(user_client):
+    """1 test, This function tests the 'add_books' view, checking the response code and the content of the context."""
+    response = user_client.get(reverse('add_books'))
     assert response.status_code == 200
     assert 'books' in response.context
 
 
 @pytest.mark.django_db
-def test_wszystkie_ksiazki_view_unauthenticated(authenticated_client):
-    """2 test , Ta funkcja testuje, widok 'wszystkie_ksiazki' dla zalogowanego użytkownika ."""
-    response = authenticated_client.get(reverse('wszystkie_ksiazki'))
+def test_add_books_view_authenticated(authenticated_client):
+    """2 test , This function tests, the view 'add_books' for the logged in user ."""
+    response = authenticated_client.get(reverse('add_books'))
     assert response.status_code == 200
 
 
 
 @pytest.mark.django_db
-def test_nowa_książka_view(authenticated_client):
-    """3 test , Ta funkcja testuje widok 'nowa_książka' dla zalogowanego użytkownika, sprawdzając kod odpowiedzi."""
-    response = authenticated_client.get(reverse('nowa_książka'))
+def test_new_book_view(authenticated_client):
+    """3 test , This function tests the 'new_book' view for the logged-in user, checking the response code."""
+    response = authenticated_client.get(reverse('new_book'))
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_nowa_książka_view_unauthenticated(user_client):
-    """4 test, Ta funkcja testuje widok 'nowa_książka' dla niezalogowanego użytkownika, sprawdzając przekierowania na stronę logowania."""
+def test_new_book_view_unauthenticated(user_client):
+    """4 test, This function tests the 'new_book' view for a non-logged-in user, checking redirects to the login page."""
     client = Client()
-    response = client.get(reverse('nowa_książka'))
+    response = client.get(reverse('new_book'))
     assert response.status_code == 302
     assert 'login' in response.url
-    response = client.post(reverse('nowa_książka'), data={'tytuł': 'New Book'})
+    response = client.post(reverse('new_book'), data={'title': 'New Book'})
     assert response.status_code == 302
     assert 'login' in response.url
 
 
 @pytest.mark.django_db
-def test_nowa_książka_view_authenticated3(authenticated_client):
-    """5 test, Ta funkcja testuje, czy zalogowany użytkownik może dodać nową książkę, za pomocą widoku o nazwie 'nowa_książka'."""
+def test_new_book_view_authenticated3(authenticated_client):
+    """5 test, This function tests whether a logged-in user can add a new book, using a view named 'new_book'."""
     data = {
-        'tytuł': 'Nowa Książka',
-        'autor': 'Nowy autor',
-        'rok': 'rok wydania',
-        'opis': 'opis książki',
-        'okładka': 'okładka',
-        'gatunek_literacki': 'gatunek literacki'
+        'title': 'new book',
+        'author': 'New author',
+        'year': 'year',
+        'description': 'description books',
+        'cover': 'cover',
+        'genre_literary': 'genre literary'
     }
 
-    response = authenticated_client.post(reverse('nowa_książka'), data)
+    response = authenticated_client.post(reverse('new_book'), data)
 
     assert response.status_code == 200
+    book_exists = Books.objects.all().exists()
+    assert book_exists is False
 
 
 
 
 @pytest.mark.django_db
-def test_nowa_książka_view_for_authenticated_client(authenticated_client):
-    """6 test, Ta funkcja testuje, czy zalogowany użytkownik może dodać nową książkę, w raz z zapisem do bazy danych."""
-    url = reverse('nowa_książka')
+def test_new_book_view_for_authenticated_client(authenticated_client):
+    """6 test, This function tests whether the logged-in user can add a new book, at the same time as writing to the database."""
+    url = reverse('new_book')
     client = Client()
-    dane = {'tytuł': 'nowa książka'}
-    Books.objects.create(tytuł=dane['tytuł'])
+    dane = {'title': 'new book'}
+    Books.objects.create(title=dane['title'])
 
     response = client.post(url, dane)
     assert response.status_code == 302
-    books = Books.objects.get(tytuł=dane['tytuł'])
+    books = Books.objects.get(title=dane['title'])
     assert books is not None
 
 @pytest.mark.django_db
-def test_edytuj_książkę_view(authenticated_client):
-    """ 7 test, Ta funkcja testuje poprawność dostępu do widoku edycji książki dla zalogowanego użytkownika, """
-    book = Books.objects.create(tytuł='Test Book')
-    response = authenticated_client.get(reverse('edytuj_książkę', args=[book.id]), data={'tytuł': 'New Book'})
+def test_edit_book_view(authenticated_client):
+    """ 7 test, This function tests the correctness of access to the books editing view for the logged user """
+    book = Books.objects.create(title='Test Book')
+    response = authenticated_client.get(reverse('edit_book', args=[book.id]), data={'title': 'New Book'})
     assert response.status_code == 200
 
 
 
 @pytest.mark.django_db
-def test_edytuj_książkę_view_not_authenticated(user_client):
-    """8 test, ta funkcja testuje, czy niezalogowany użytkownik nie może edytować książki, przekierowując do strony logowania."""
-    book = Books.objects.create(tytuł='Existing Book')
-    response = user_client.post(reverse('edytuj_książkę', args=[book.id]))
+def test_edit_book_view_not_authenticated(user_client):
+    """8 test, this function tests whether a non-logged-in user cannot edit books, redirecting to the login page."""
+    book = Books.objects.create(title='Existing Book')
+    response = user_client.post(reverse('edit_book', args=[book.id]))
     assert response.status_code == 302
     assert 'login' in response.url
 
 @pytest.mark.django_db
-def test_edytuj_książkę_view_unauthenticated(user_client):
-    """ 9 test, ta funkcja testuje, czy niezalogowany użytkownik jest poprawnie przekierowywany do strony logowania, przy próbie uzyskania dostępu do widoku edycji książki"""
+def test_edit_book_view_unauthenticated(user_client):
+    """ 9 test, this function tests whether a non-logged-in user is correctly redirected to the login page, when trying to access the edit view books"""
     client = Client()
-    book = Books.objects.create(tytuł='Existing Book')
-    response = client.get(reverse('edytuj_książkę',  args=[book.id]))
+    book = Books.objects.create(title='Existing Book')
+    response = client.get(reverse('edit_book',  args=[book.id]))
     assert response.status_code == 302
     assert 'login' in response.url
-    response = client.post(reverse('edytuj_książkę', args=[book.id]), data={'tytuł': 'New Book'})
+    response = client.post(reverse('edit_book', args=[book.id]), data={'title': 'New Book'})
     assert response.status_code == 302
     assert 'login' in response.url
 
 
 @pytest.mark.django_db
-def test_edytuj_książkę_view_for_authenticated_client(authenticated_client):
-    """10 test, Ta funkcja testuje, czy zalogowany użytkownik może edytować książkę."""
+def test_edit_book_view_for_authenticated_client(authenticated_client):
+    """10 test, This function tests whether the logged-in user can edit the book."""
     book_id = 4
-    url = reverse('edytuj_książkę', args=[book_id])
+    url = reverse('edit_book', args=[book_id])
     client = Client()
-    dane = {'tytuł': 'nowa książka'}
-    Books.objects.create(id=book_id, tytuł='Książka do edycji')
+    dane = {'title': 'new book'}
+    Books.objects.create(id=book_id, title='book for edition')
     response = client.post(url, dane)
     assert response.status_code == 302
     books = Books.objects.get(id=book_id)
@@ -126,31 +128,41 @@ def test_edytuj_książkę_view_for_authenticated_client(authenticated_client):
 
 
 @pytest.mark.django_db
-def test_usuń_książkę_view(authenticated_client):
-    """11 test, ta funkcja testuje, czy zalogowany użytkownik może poprawnie uzyskać dostęp do widoku usuwania książki."""
-    book = Books.objects.create(tytuł='Existing Book')
-    response = authenticated_client.get(reverse('usuń_książkę', args=[book.id]))
+def test_edit_book_view_for_authenticated_client(authenticated_client):
+    """Test sprawdza, czy zalogowany użytkownik może edytować książkę, oraz czy edytowana książka pomyślnie została dodana do bazy danych."""
+    book_id = 4
+    url = reverse('edit_book', args=[book_id])
+    book = Books.objects.create(id=book_id, title='new book')
+    updated_data = {'title': 'new book'}
+    response = authenticated_client.post(url, updated_data)
+    assert response.status_code == 200
+    updated_book = Books.objects.get(id=book_id)
+    assert updated_book.title == 'new book'
+
+
+@pytest.mark.django_db
+def test_delete_book_view(authenticated_client):
+    """11 test, this function tests whether the logged-in user can correctly access the books deletion view."""
+    book = Books.objects.create(title='Existing Book')
+    response = authenticated_client.get(reverse('delete_book', args=[book.id]))
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_usuń_książkę_view_not_authenticated2(user_client):
-    """12 test, ta funkcja testuje, czy niezalogowany użytkownik nie może usunąć książki."""
-    book = Books.objects.create(tytuł='Existing Book')
-    response = user_client.post(reverse('usuń_książkę', args=[book.id]))
+def test_delete_book_view_not_authenticated2(user_client):
+    """12 test, this function tests whether a non-logged-in user cannot delete books."""
+    book = Books.objects.create(title='Existing Book')
+    response = user_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302
     assert 'login' in response.url
 
 
 
 @pytest.mark.django_db
-def test_usuń_książkę_view_get_request(authenticated_client):
-    """13 test, ta funkcja testuje, czy widok usuwania książki prawidłowo obsługuje żądanie GET dla zalogowanego użytkownika."""
-    book = Books.objects.create(tytuł='Existing Book')
-    response = authenticated_client.get(reverse('usuń_książkę', args=[book.id]))
-    assert response.status_code == 200
-    assert 'book' in response.context
-    assert response.context['book'] == book
-
-
+def test_delete_book_view_get_request(authenticated_client):
+    """13 test, this function tests whether the books deletion view correctly handles the GET request for the logged-in user."""
+    book = Books.objects.create(title='Existing Book')
+    response = authenticated_client.post(reverse('delete_book', args=[book.id]))
+    assert response.status_code == 302
+    assert not Books.objects.filter(pk=book.id).exists()
 

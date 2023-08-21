@@ -1,49 +1,48 @@
 from django.shortcuts import render, get_object_or_404, redirect
 
 import books
-from .models import Books, Genre, Ocena, Review
-from .forms import BooksForm, GenreForm, OcenaForm, ReviewForm
+from .models import Books, Genre, Rating, Review, Writer
+from .forms import BooksForm, GenreForm, RatingForm, ReviewForm
 from django.contrib.auth.decorators import login_required
 
-def wszystkie_ksiazki(request):
-    """ Funkcja ta wyświetla wszystkie książki."""
-    wszystkie = Books.objects.all()
-    return render(request, 'books.html', {'books': wszystkie})
+
+def add_books(request):
+    """ This function displays all books."""
+    all = Books.objects.all()
+    return render(request, 'books.html', {'books': all})
 
 @login_required
-def nowa_książka(request):
-    """Funkcja ta obsługuje tworzenie nowej książki."""
+def new_book(request):
+    """This function supports the creation of a new books."""
     form_book = BooksForm(request.POST or None, request.FILES or None)
     form_genre = GenreForm(request.POST or None)
-    form_ocena = OcenaForm(request.POST or None)
+    form_rating = RatingForm(request.POST or None)
     form_review = ReviewForm(request.POST or None)
 
-    if all((form_book.is_valid(), form_genre.is_valid(), form_ocena.is_valid(), form_review.is_valid())):
+    if all((form_book.is_valid(), form_genre.is_valid(), form_rating.is_valid(), form_review.is_valid())):
         book = form_book.save(commit=False)
         genre = form_genre.save()
-        book.gatunek_literacki = genre
+        book.genre_literary = genre
         book.save()
         form_book.save_m2m()
 
-        ocena = form_ocena.save(commit=False)
-        ocena.books = book
-        ocena.save()
-
+        rating = form_rating.save(commit=False)
+        rating.books = book
+        rating.save()
 
         review = form_review.save(commit=False)
         review.books = book
         review.save()
 
-        return redirect(wszystkie_ksiazki)
+        return redirect(add_books)
 
-
-    return render(request, 'book_form.html', {'form': form_book, 'form_genre': form_genre, 'form_ocena': form_ocena, 'form_review': form_review, 'nowa': True})
+    return render(request, 'book_form.html', {'form': form_book, 'form_genre': form_genre, 'form_rating': form_rating, 'form_review': form_review, 'new': True})
 
 @login_required
-def edytuj_książkę(request, id):
-    """Funkcja ta obsługuje edycję książki o podanym ID."""
+def edit_book(request, id):
+    """This function supports editing books with the specified ID."""
     book = get_object_or_404(Books, pk=id)
-    oceny = Ocena.objects.filter(books=book)
+    ratings = Rating.objects.filter(books=book)
     review = Review.objects.filter(books=book)
 
     try:
@@ -53,42 +52,41 @@ def edytuj_książkę(request, id):
 
     form_book = BooksForm(request.POST or None, request.FILES or None, instance=book)
     form_genre = GenreForm(request.POST or None, instance=genre)
-    form_ocena = OcenaForm(request.POST or None)
+    form_rating = RatingForm(request.POST or None)
     form_review = ReviewForm(request.POST or None)
 
     if request.method == 'POST':
-        if 'gwiazdki' in request.POST:
-            ocena = form_ocena.save(commit=False)
-            ocena.books = book
-            ocena.save()
-
+        if 'stars' in request.POST:
+            rating = form_rating.save(commit=False)
+            rating.books = book
+            rating.save()
 
     if request.method == 'POST':
-        if 'treść_recenzji' in request.POST:
+        if 'text_review' in request.POST:
             review = form_review.save(commit=False)
             review.books = book
             review.save()
 
-    if all((form_book.is_valid(), form_genre.is_valid(), form_ocena.is_valid(), form_review.is_valid())):
+    if all((form_book.is_valid(), form_genre.is_valid(), form_rating.is_valid(), form_review.is_valid())):
         book = form_book.save(commit=False)
         genre = form_genre.save()
-        book.gatunek_literacki = genre
+        book.genre_literary = genre
         book.save()
         form_book.save_m2m()
 
-        return redirect(wszystkie_ksiazki)
+        return redirect(add_books)
 
     return render(request, 'book_form.html', {'form': form_book, 'book':book,
-    'form_genre': form_genre, 'oceny': oceny, 'form_ocena': form_ocena, 'review': review, 'form_review': form_review, 'nowa': False})
+    'form_genre': form_genre, 'ratings': ratings, 'form_rating': form_rating, 'review': review, 'form_review': form_review, 'new': False})
 
 @login_required
-def usuń_książkę(request, id):
-    """Funkcja ta obsługuje usuwanie książki o podanym ID."""
+def delete_book(request, id):
+    """This function supports the deletion of books with the specified ID."""
     book = get_object_or_404(Books, pk=id)
 
     if request.method == "POST":
         book.delete()
-        return redirect(wszystkie_ksiazki)
+        return redirect(add_books)
 
 
-    return render(request, 'potwierdz.html', {'book': book})
+    return render(request, 'confirm.html', {'book': book})

@@ -8,8 +8,8 @@
         {{ form }}
         {{ form_genre }}
 
-        {% if form_ocena %}
-            {{ form_ocena }}
+        {% if form_rating %}
+            {{ form_rating }}
 
         {% endif %}
 
@@ -18,31 +18,31 @@
 
         {% endif %}
 
-        {% if nowa %}
+        {% if new %}
             <button type="submit" name="action" value="dodaj">Dodaj książkę</button>
         {% else %}
-            <button type="submit" name="action" value="edytuj">Edytuj książkę</button>
+            <button type="submit" name="action" value="edit">Edytuj książkę</button>
         {% endif %}
 
 
     </form>
 
-    {% for ocena in oceny %}
-        <h4> Gwiazdki: {{ ocena.gwiazdki }}</h4>
+    {% for rating in rating %}
+        <h4> Gwiazdki: {{ rating.stars }}</h4>
     {% endfor %}
 
 
     {% for review in review %}
-        <h4> Treść recenzji: {{ review.treść_recenzji }}</h4>
+        <h4> Treść recenzji: {{ review.text_review }}</h4>
     {% endfor %}
 
-    <p> Inne książki tego autora {{ book.autorzy.first }}: </p>
+    <p> Inne książki tego autora {{ book.authors.first }}: </p>
     <ul>
-        {% for ksiazka in book.autorzy.first.books_set.all %}
-            <li> {{ ksiazka.tytuł }}</li>
+        {% for ksiazka in book.authors.first.books_set.all %}
+            <li> {{ ksiazka.title }}</li>
         {% endfor %}
     </ul>
 
-    <a href="{% url 'wszystkie_ksiazki' %}">Cofnij</a>
+    <a href="{% url 'add_books' %}">Cofnij</a>
 
 {% endblock %}

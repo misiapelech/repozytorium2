@@ -1,12 +1,12 @@
 from django.urls import path
-from booksapp.views import wszystkie_ksiazki, nowa_książka, edytuj_książkę, usuń_książkę
+from booksapp.views import add_books, new_book, edit_book, delete_book
 
 urlpatterns = [
 
-    path('wszystkie/', wszystkie_ksiazki, name="wszystkie_ksiazki"),
-    path('nowa/', nowa_książka, name="nowa_książka"),
-    path('edytuj/<int:id>/', edytuj_książkę, name="edytuj_książkę"),
-    path('usun/<int:id>/', usuń_książkę, name="usuń_książkę")
+    path('all/', add_books, name="add_books"),
+    path('new/', new_book, name="new_book"),
+    path('edit/<int:id>/', edit_book, name="edit_book"),
+    path('delete/<int:id>/', delete_book, name="delete_book")
 
 
 ]
