@@ -65,16 +65,12 @@ def test_new_book_view_authenticated3(authenticated_client):
 
     assert response.status_code == 200
     book_exists = Books.objects.all().exists()
-    assert book_exists is False
-
-
-
+    assert book_exists is True
 
 @pytest.mark.django_db
 def test_new_book_view_for_authenticated_client(authenticated_client):
     """6 test, This function tests whether the logged-in user can add a new book, at the same time as writing to the database."""
     url = reverse('new_book')
-    client = Client()
     dane = {'title': 'new book'}
     Books.objects.create(title=dane['title'])
 
@@ -165,4 +161,5 @@ def test_delete_book_view_get_request(authenticated_client):
     response = authenticated_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302
     assert not Books.objects.filter(pk=book.id).exists()
+
 

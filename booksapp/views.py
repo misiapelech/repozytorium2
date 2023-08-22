@@ -14,6 +14,7 @@ def add_books(request):
 @login_required
 def new_book(request):
     """This function supports the creation of a new books."""
+
     form_book = BooksForm(request.POST or None, request.FILES or None)
     form_genre = GenreForm(request.POST or None)
     form_rating = RatingForm(request.POST or None)
@@ -37,6 +38,7 @@ def new_book(request):
         return redirect(add_books)
 
     return render(request, 'book_form.html', {'form': form_book, 'form_genre': form_genre, 'form_rating': form_rating, 'form_review': form_review, 'new': True})
+
 
 @login_required
 def edit_book(request, id):

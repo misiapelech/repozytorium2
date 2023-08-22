@@ -1,19 +1,20 @@
 {% extends 'base.html' %}
 
+
 {% block title %} Booksapp! {% endblock %}
 
 {% block page %}
 
     {% if user.is_authenticated %}
         {{ user.username }} Witaj w Booksapp!<br>
-    <a href="{% url 'logout'  %}">logout</a>
+    <a href="{% url 'logout'  %}">Wyloguj się</a>
         {% else %}
     <a href="{% url 'login'  %}">login</a>
     {% endif %}
 
     <hr>
 
-    <a href="{% url 'new_book'  %}">new book</a>
+    <a href="{% url 'new_book'  %}">Nowa Książka</a>
 
 {% if books|length == 0 %}
 <h2> Brak książek</h2>
@@ -24,7 +25,7 @@
 <h3> {{  book }} </h3>
     <img src="/media/{{ book.cover }}" alt="cover books" style="max-width: 120px;">
     <p>{{book.description}}</p>
-    <a href="{% url 'edit_book' book.id  %}">edytuj</a>
+    <a href="{% url 'edit_book' book.id  %}">Edytuj</a>
     <a href="{% url 'delete_book' book.id  %}">Usuń</a>
 
 
