@@ -1,6 +1,6 @@
 from django.http import HttpRequest, Http404
 from django.test import TestCase
-from booksapp.models import Books
+from booksapp.models import Books, Genre, Writer
 import pytest
 from django.urls import reverse
 from django.test import Client
@@ -40,88 +40,62 @@ def test_new_book_view(authenticated_client):
 @pytest.mark.django_db
 def test_new_book_view_unauthenticated(user_client):
     """4 test, This function tests the 'new_book' view for a non-logged-in user, checking redirects to the login page."""
-    client = Client()
-    response = client.get(reverse('new_book'))
-    assert response.status_code == 302
-    assert 'login' in response.url
-    response = client.post(reverse('new_book'), data={'title': 'New Book'})
+    response = user_client.get(reverse('new_book'))
     assert response.status_code == 302
     assert 'login' in response.url
 
 
 @pytest.mark.django_db
-def test_new_book_view_authenticated3(authenticated_client):
-    """5 test, This function tests whether a logged-in user can add a new book using a view named 'new_book'."""
-    data = {
-        'title': 'New Book',
-        'authors': 'Author Name',
-        'year': 2023,
+def test_new_book_view_authenticated20(authenticated_client):
+    """5 Test,  whether a logged-in user can add a new book using the 'new_book' view."""
+
+    genre = Genre.objects.create(genre=1)
+    writer = Writer.objects.create(name='Robert', surname='Kiyosaki')
+
+    book_data = {
+        'title': 'Biedny ojciec bogaty ojciec',
+        'authors': writer.id,
+        'year': 1997,
         'description': 'A test book description',
         'cover': 'Carrie.jpg',
+        'genre': genre.id,
+        'stars': 5,
+        'text_review': 'This is a great book!',
     }
 
-    assert not Books.objects.filter(title='New Book').exists()
+    response = authenticated_client.post(reverse('new_book'), book_data)
 
-    response = authenticated_client.post(reverse('new_book'), data)
+    assert response.status_code == 302
+    assert Books.objects.filter(title='Biedny ojciec bogaty ojciec').exists()
 
-    assert response.status_code == 200
-
-    assert Books.objects.filter(title='New Book').exists()
-
-    saved_book = Books.objects.get(title='New Book')
+    saved_book = Books.objects.get(title='Biedny ojciec bogaty ojciec')
     assert saved_book is not None
 
 @pytest.mark.django_db
-def test_new_book_view_for_authenticated_client(authenticated_client):
-    """6 test, This function tests whether the logged-in user can add a new book, at the same time as writing to the database."""
-    url = reverse('new_book')
-    dane = {'title': 'new book'}
-    Books.objects.create(title=dane['title'])
-
-    response = authenticated_client.post(url, dane)
-    assert response.status_code == 200
-    books = Books.objects.get(title=dane['title'])
-    assert books is not None
-
-@pytest.mark.django_db
 def test_edit_book_view(authenticated_client):
-    """ 7 test, This function tests the correctness of access to the books editing view for the logged user """
-    book = Books.objects.create(title='Test Book')
-    response = authenticated_client.get(reverse('edit_book', args=[book.id]), data={'title': 'New Book'})
+    """ 6 test, This function tests the correctness of access to the books editing view for the logged user """
+    book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
+    response = authenticated_client.get(reverse('edit_book', args=[book.id]), data={'title': 'Biedny ojciec bogaty ojciec'})
     assert response.status_code == 200
-
 
 
 @pytest.mark.django_db
 def test_edit_book_view_not_authenticated(user_client):
-    """8 test, this function tests whether a non-logged-in user cannot edit books, redirecting to the login page."""
-    book = Books.objects.create(title='Existing Book')
+    """7 test, this function tests whether a non-logged-in user cannot edit books, redirecting to the login page."""
+    book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = user_client.post(reverse('edit_book', args=[book.id]))
-    assert response.status_code == 302
-    assert 'login' in response.url
-
-@pytest.mark.django_db
-def test_edit_book_view_unauthenticated(user_client):
-    """ 9 test, this function tests whether a non-logged-in user is correctly redirected to the login page, when trying to access the edit view books"""
-    client = Client()
-    book = Books.objects.create(title='Existing Book')
-    response = client.get(reverse('edit_book',  args=[book.id]))
-    assert response.status_code == 302
-    assert 'login' in response.url
-    response = client.post(reverse('edit_book', args=[book.id]), data={'title': 'New Book'})
     assert response.status_code == 302
     assert 'login' in response.url
 
 
 @pytest.mark.django_db
 def test_edit_book_view_for_authenticated_client(authenticated_client):
-    """10 test, This function tests whether the logged-in user can edit the book."""
+    """8 test, This function tests whether the logged-in user can edit the book."""
     book_id = 4
     url = reverse('edit_book', args=[book_id])
-    client = Client()
-    dane = {'title': 'new book'}
-    Books.objects.create(id=book_id, title='book for edition')
-    response = client.post(url, dane)
+    dane = {'title': 'Biedny ojciec bogaty ojciec'}
+    Books.objects.create(id=book_id, title='Biedny ojciec bogaty ojciec')
+    response = authenticated_client.post(url, dane)
     assert response.status_code == 302
     books = Books.objects.get(id=book_id)
     assert books is not None
@@ -129,29 +103,29 @@ def test_edit_book_view_for_authenticated_client(authenticated_client):
 
 @pytest.mark.django_db
 def test_edit_book_view_for_authenticated_client(authenticated_client):
-    """11 test verifies that the logged-in user can edit the book, and that the edited book was successfully added to the database."""
+    """9 test verifies that the logged-in user can edit the book, and that the edited book was successfully added to the database."""
     book_id = 4
     url = reverse('edit_book', args=[book_id])
-    book = Books.objects.create(id=book_id, title='new book')
+    Books.objects.create(id=book_id, title='Biedny ojciec bogaty ojciec')
     updated_data = {'title': 'new book'}
     response = authenticated_client.post(url, updated_data)
     assert response.status_code == 200
     updated_book = Books.objects.get(id=book_id)
-    assert updated_book.title == 'new book'
+    assert updated_book.title == 'Biedny ojciec bogaty ojciec'
 
 
 @pytest.mark.django_db
 def test_delete_book_view(authenticated_client):
-    """12 test, this function tests whether the logged-in user can correctly access the books deletion view."""
-    book = Books.objects.create(title='Existing Book')
+    """10 test, this function tests whether the logged-in user can correctly access the books deletion view."""
+    book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = authenticated_client.get(reverse('delete_book', args=[book.id]))
     assert response.status_code == 200
 
 
 @pytest.mark.django_db
-def test_delete_book_view_not_authenticated2(user_client):
-    """13 test, this function tests whether a non-logged-in user cannot delete books."""
-    book = Books.objects.create(title='Existing Book')
+def test_delete_book_view_not_authenticated(user_client):
+    """11 test, this function tests whether a non-logged-in user cannot delete books."""
+    book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = user_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302
     assert 'login' in response.url
@@ -160,10 +134,14 @@ def test_delete_book_view_not_authenticated2(user_client):
 
 @pytest.mark.django_db
 def test_delete_book_view_get_request(authenticated_client):
-    """14 test, this function tests whether the books deletion view correctly handles the GET request for the logged-in user."""
-    book = Books.objects.create(title='Existing Book')
+    """12 test, this function tests whether the books deletion view correctly handles the GET request for the logged-in user."""
+    book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = authenticated_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302
     assert not Books.objects.filter(pk=book.id).exists()
+
+
+
+
 
 

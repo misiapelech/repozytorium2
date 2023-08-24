@@ -38,7 +38,7 @@ class Books(models.Model):
     year = models.PositiveSmallIntegerField(default=2000, blank=True)
     description = models.TextField(default="")
     cover = models.ImageField(upload_to="covers", null=True, blank=True)
-    genre_literary = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
+    genre = models.ForeignKey(Genre, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.title_and_authors()

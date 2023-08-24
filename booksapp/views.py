@@ -23,7 +23,7 @@ def new_book(request):
     if all((form_book.is_valid(), form_genre.is_valid(), form_rating.is_valid(), form_review.is_valid())):
         book = form_book.save(commit=False)
         genre = form_genre.save()
-        book.genre_literary = genre
+        book.genre = genre
         book.save()
         form_book.save_m2m()
 
@@ -72,7 +72,7 @@ def edit_book(request, id):
     if all((form_book.is_valid(), form_genre.is_valid(), form_rating.is_valid(), form_review.is_valid())):
         book = form_book.save(commit=False)
         genre = form_genre.save()
-        book.genre_literary = genre
+        book.genre = genre
         book.save()
         form_book.save_m2m()
 
