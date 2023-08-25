@@ -88,22 +88,10 @@ def test_edit_book_view_not_authenticated(user_client):
     assert 'login' in response.url
 
 
-@pytest.mark.django_db
-def test_edit_book_view_for_authenticated_client(authenticated_client):
-    """8 test, This function tests whether the logged-in user can edit the book."""
-    book_id = 4
-    url = reverse('edit_book', args=[book_id])
-    dane = {'title': 'Biedny ojciec bogaty ojciec'}
-    Books.objects.create(id=book_id, title='Biedny ojciec bogaty ojciec')
-    response = authenticated_client.post(url, dane)
-    assert response.status_code == 302
-    books = Books.objects.get(id=book_id)
-    assert books is not None
-
 
 @pytest.mark.django_db
 def test_edit_book_view_for_authenticated_client(authenticated_client):
-    """9 test verifies that the logged-in user can edit the book, and that the edited book was successfully added to the database."""
+    """8 test verifies that the logged-in user can edit the book, and that the edited book was successfully added to the database."""
     book_id = 4
     url = reverse('edit_book', args=[book_id])
     Books.objects.create(id=book_id, title='Biedny ojciec bogaty ojciec')
@@ -116,7 +104,7 @@ def test_edit_book_view_for_authenticated_client(authenticated_client):
 
 @pytest.mark.django_db
 def test_delete_book_view(authenticated_client):
-    """10 test, this function tests whether the logged-in user can correctly access the books deletion view."""
+    """9 test, this function tests whether the logged-in user can correctly access the books deletion view."""
     book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = authenticated_client.get(reverse('delete_book', args=[book.id]))
     assert response.status_code == 200
@@ -124,17 +112,16 @@ def test_delete_book_view(authenticated_client):
 
 @pytest.mark.django_db
 def test_delete_book_view_not_authenticated(user_client):
-    """11 test, this function tests whether a non-logged-in user cannot delete books."""
+    """10 test, this function tests whether a non-logged-in user cannot delete books."""
     book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = user_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302
     assert 'login' in response.url
 
 
-
 @pytest.mark.django_db
 def test_delete_book_view_get_request(authenticated_client):
-    """12 test, this function tests whether the books deletion view correctly handles the GET request for the logged-in user."""
+    """11 test, this function tests whether the books deletion view correctly handles the GET request for the logged-in user."""
     book = Books.objects.create(title='Biedny ojciec bogaty ojciec')
     response = authenticated_client.post(reverse('delete_book', args=[book.id]))
     assert response.status_code == 302

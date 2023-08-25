@@ -36,11 +36,14 @@
         <h4> Treść recenzji: {{ review.text_review }}</h4>
     {% endfor %}
 
-    <p> Inne książki tego autora {{ book.authors.first }}: </p>
+
+    <p> Inne książki autora {{ book.authors.first }}: </p>
     <ul>
-        {% for ksiazka in book.authors.first.books_set.all %}
-            <li> {{ ksiazka.title }}</li>
+    {% for author in book.authors.all %}
+        {% for book_item in author.books_authored.all %}
+            <li> {{ book_item.title }}</li>
         {% endfor %}
+    {% endfor %}
     </ul>
 
     <a href="{% url 'add_books' %}">Cofnij</a>
